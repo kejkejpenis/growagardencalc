@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator Mutacji – Grow a Garden</title>
+  <style>
+    body {
+      background-color: #291d40;
+      color: #fefefe;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    .mutation-list {
+      columns: 2;
+      max-width: 600px;
+    }
+
+    .mutation {
+      margin-bottom: 6px;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .result {
+      background: #422d5a;
+      padding: 10px;
+      margin-top: 15px;
+      font-size: 18px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #795cc9;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #7548b0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Kalkulator Mutacji – Grow a Garden</h1>
+
+  <div class="section">
+    <strong>Mutacja Wzrostu (Growth Mutation):</strong><br>
+    <label><input type="radio" name="growth" value="1" checked> Brak</label>
+    <label><input type="radio" name="growth" value="20"> Golden (x20)</label>
+    <label><input type="radio" name="growth" value="50"> Rainbow (x50)</label>
+  </div>
+
+  <div class="section">
+    <strong>Mutacje Środowiskowe:</strong>
+    <div class="mutation-list" id="mutations">
+      <!-- checkboxes będą wygenerowane przez JS -->
+    </div>
+  </div>
+
+  <button onclick="calculate()">Oblicz mnożnik</button>
+
+  <div id="result" class="result">Mnożnik: —</div>
+
+  <script>
+    const mutations = [
+      { name: "Bloodlit", value: 4 },
+      { name: "Celestial", value: 120 },
+      { name: "Chilled", value: 2 },
+      { name: "Choc", value: 2 },
+      { name: "Dawnbound", value: 150 },
+      { name: "Disco", value: 125 },
+      { name: "Frozen", value: 10 },
+      { name: "Heavenly", value: 5 },
+      { name: "HoneyGlazed", value: 5 },
+      { name: "Moonlit", value: 2 },
+      { name: "Plasma", value: 5 },
+      { name: "Pollinated", value: 3 },
+      { name: "Shocked", value: 100 },
+      { name: "Voidtouched", value: 135 },
+      { name: "Wet", value: 2 },
+      { name: "Zombified", value: 25 }
+    ];
+
+    const groupChill = ["Chilled", "Wet", "Frozen"];
+
+    const container = document.getElementById('mutations');
+    mutations.forEach(m => {
+      const id = "m_" + m.name;
+      container.innerHTML += `<div class="mutation"><label><input type="checkbox" id="${id}" value="${m.value}"> ${m.name} (x${m.value})</label></div>`;
+    });
+
+    function calculate() {
+      const growth = parseInt(document.querySelector('input[name="growth"]:checked').value);
+      const selected = [];
+      let total = 0;
+      let names = [];
+
+      mutations.forEach(m => {
+        const cb = document.getElementById("m_" + m.name);
+        if (cb.checked) {
+          selected.push({ name: m.name, value: parseInt(cb.value) });
+          names.push(m.name);
+        }
+      });
+
+      // sprawdź ograniczenia
+      const chillGroupCount = selected.filter(m => groupChill.includes(m.name)).length;
+      if (chillGroupCount > 1) {
+        document.getElementById('result').innerText = "Błąd: Można wybrać tylko jedną z Chilled, Wet, Frozen.";
+        return;
+      }
+
+      if (growth === 20 && names.includes("Rainbow") || growth === 50 && names.includes("Golden")) {
+        document.getElementById('result').innerText = "Błąd: Nie można mieć jednocześnie Rainbow i Golden.";
+        return;
+      }
+
+      selected.forEach(m => total += m.value);
+      const finalMultiplier = growth * (1 + total - selected.length);
+
+      document.getElementById('result').innerText = `Mnożnik: ${finalMultiplier.toLocaleString()}x`;
+    }
+  </script>
+
+</body>
+</html>
